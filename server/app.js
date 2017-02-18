@@ -10,13 +10,11 @@ const fs = require('fs')
 
 const react = require('react')
 const reactDomServer = require('react-dom/server')
-const reactRouter = require('react-router')
+const {match, RouterContext} = require('react-router')
 
 const routes = require('../src/routes').default()
 const configureStore = require('../src/store').default
 const Provider = require('react-redux').Provider
-
-
 
 const app = express()
 
@@ -40,7 +38,7 @@ function universalLoader(req, res) {
       console.error('err', err)
       return res.status(404).end()
     }
-    reactRouter.match({ routes, location: req.url }, (err, redirect, ssrData) => {
+    match({ routes, location: req.url }, (err, redirect, renderProps) => {
       if(err) {
         console.error('huh err', err)
         return res.status(404).end()
@@ -50,7 +48,7 @@ function universalLoader(req, res) {
         let store = configureStore()
         const ReactApp = reactDomServer.renderToString(
           react.createElement(Provider, {store},
-            react.createElement(reactRouter.RouterContext, ssrData)
+            react.createElement(RouterContext, renderProps)
           )
         )
         const RenderedApp = htmlData.replace('{{SSR}}', ReactApp)
