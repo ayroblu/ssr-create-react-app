@@ -8,14 +8,6 @@ const morgan = require('morgan')
 const path = require('path')
 const fs = require('fs')
 
-const react = require('react')
-const reactDomServer = require('react-dom/server')
-const {match, RouterContext} = require('react-router')
-
-const routes = require('../src/routes').default()
-const configureStore = require('../src/store').default
-const Provider = require('react-redux').Provider
-
 const app = express()
 
 // Support Gzip
@@ -28,44 +20,17 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // Setup logger
 app.use(morgan('combined'))
 
-// Serve static assets
-function universalLoader(req, res) {
-  //res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
-  const filePath = path.resolve(__dirname, '..', 'build', 'index.html')
+const index = require('./routes/index')
+app.use('/', index)
 
-  fs.readFile(filePath, 'utf8', (err, htmlData)=>{
-    if (err) {
-      console.error('err', err)
-      return res.status(404).end()
-    }
-    match({ routes, location: req.url }, (err, redirect, renderProps) => {
-      if(err) {
-        console.error('huh err', err)
-        return res.status(404).end()
-      } else if(redirect) {
-        res.redirect(302, redirect.pathname + redirect.search)
-      } else if(ssrData) {
-        let store = configureStore()
-        const ReactApp = reactDomServer.renderToString(
-          react.createElement(Provider, {store},
-            react.createElement(RouterContext, renderProps)
-          )
-        )
-        const RenderedApp = htmlData.replace('{{SSR}}', ReactApp)
-        res.send(RenderedApp)
-      } else {
-        return res.status(404).end()
-      }
-    })
-  })
-}
-app.use('/', universalLoader)
+// Serve static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')))
 
-const api = require('./api')
+const api = require('./routes/api')
 app.use('/api', api)
 
 // Always return the main index.html, so react-router render the route in the client
-app.use('*', universalLoader)
+const universalLoader = require('./universal')
+app.use('/', universalLoader)
 
 module.exports = app
