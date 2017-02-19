@@ -1,7 +1,7 @@
 import { SET, RESET } from '../types/user'
 
 const initialState = {
-  email: 'ben@ben.com'
+  email: 'user@example.com'
 }
 
 export default function reducer(state=initialState, action) {

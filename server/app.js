@@ -66,6 +66,6 @@ const api = require('./api')
 app.use('/api', api)
 
 // Always return the main index.html, so react-router render the route in the client
-app.use('/', universalLoader)
+app.use('*', universalLoader)
 
 module.exports = app
