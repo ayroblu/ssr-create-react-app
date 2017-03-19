@@ -5,6 +5,8 @@ I wanted to add server side rendering to create react app, especially after I ad
 
 Included: redux, react-router
 
+_Warning: uses react-router 3, v4 just dropped, it breaks everything its kinda annoying_
+
 Install
 -------
 ```bash
